@@ -1,15 +1,14 @@
 {
-  "name": "chat-example",
-  "version": "0.0.0",
-  "description": "A chat example to showcase how to use `socket.io` with a static `express` server with `async` for control flow.",
+  "name": "slack-hangman",
+  "version": "0.0.1",
+  "description": "A hangman game backend server for slack command.",
   "main": "server.js",
-  "repository": "",
-  "author": "Mostafa Eweda <mo.eweda@gmail.com>",
+  "repository": "https://github.com/Zaimatsu/slack-hangman",
+  "author": "Sebastian Pietraszek <sebastian.a.pietraszek@gmail.com>",
   "dependencies": {
-    "async": "~0.2.8",
-    "body-parser": "^1.18.2",
+    "body-parser": "^1.18.3",
     "express": "~3.2.4",
-    "request": "^2.86.0",
-    "socket.io": "~0.9.14"
+    "lodash": "^4.17.10",
+    "request": "^2.86.0"
   }
 }
