@@ -5,10 +5,18 @@
   "main": "server.js",
   "repository": "https://github.com/Zaimatsu/slack-hangman",
   "author": "Sebastian Pietraszek <sebastian.a.pietraszek@gmail.com>",
+  "scripts": {
+    "start": "node server.js",
+    "stop": "node server.stop.js",
+    "github-webhooks": "node github-webhooks.js"
+  },
   "dependencies": {
     "body-parser": "^1.18.3",
     "express": "~3.2.4",
     "lodash": "^4.17.10",
     "request": "^2.86.0"
+  },
+  "devDependencies": {
+    "socket.io": "^2.1.1"
   }
 }
