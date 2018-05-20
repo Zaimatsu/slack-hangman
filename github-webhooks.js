@@ -1,6 +1,6 @@
 var fs = require('fs');
 var githubhook = require('githubhook');
-const exec = require('child_process').exec;
+const spawn = require('child_process').spawn;
 
 const options = {
 
@@ -21,41 +21,32 @@ github.listen();
 github.on('push', function (event, repo, ref, data) {
 	if(repo === "refs/heads/master") {
 		console.log("[GITHUB WEBHOOKS] Push on master registered. Pulling changes...");
-		exec('git pull',
 
-		        (error, stdout, stderr) => {
+		let pullMaster = spawn("git", ["pull"]);
 
-				console.log(`${ stdout }`);
+		pullMaster.stdout.on('data', function (data) {
+		  console.log('[GITHUB WEBHOOKS] ' + data.toString());
+		});
+		
+		pullMaster.stderr.on('data', function (data) {
+		  console.log('[GITHUB WEBHOOKS] ' + data.toString());
+		});
+		
+		pullMaster.on('exit', function (code) {
+			if(code !== 0) {
+				console.error("[GITHUB WEBHOOKS] Could not pull from repo.");
+			} else {
+				console.log("[GITHUB WEBHOOKS] Changes pulled. Restarting server...");
+				let restartServer = spawn("npm", ["restart"]);
 
-				console.log(`${ stderr }`);
-
-				if (error !== null) {
-
-			                console.log(`[GITHUB WEBHOOKS] Could not pull from repo: ${ error }`);
-
-				} else {
-					console.log("[GITHUB WEBHOOKS] Changes pulled. Restarting server...");
-					exec('npm restart',
-
-					        (error, stdout, stderr) => {
-
-							console.log(`${ stdout }`);
-
-							console.log(`${ stderr }`);
-
-							if (error !== null) {
-
-						                console.log(`[GITHUB WEBHOOKS] Could not restart server: ${ error }`);
-
-							} else {
-								console.log("[GITHUB WEBHOOKS] Server restarted after changes on master.");
-							}
-
-				        	}
-        				);
-				}
-
-	        	}
-        	);
+				restartServer.stdout.on('data', function (data) {
+				  console.log('[GITHUB WEBHOOKS] ' + data.toString());
+				});
+				
+				restartServer.stderr.on('data', function (data) {
+				  console.log('[GITHUB WEBHOOKS] ' + data.toString());
+				});
+			}		
+		});
 	}
 });
