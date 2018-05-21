@@ -17,6 +17,7 @@
     "request": "^2.86.0"
   },
   "devDependencies": {
+    "githubhook": "^1.9.3",
     "socket.io": "^2.1.1"
   }
 }
