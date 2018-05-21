@@ -1,37 +1,70 @@
 var _ = require("lodash");
-var GameResponseProviderBase = require("./GameResponseProviderBase.js");
+
+var GameResponseProviderBase = require("./GameResponseProviderBase");
+var SlackResponseBuilder = require("./SlackResponseBuilder");
 
 class DefaultGameResponseProvider extends GameResponseProviderBase {
     _getJustStartedResponse(game) {
-        return { text: `<@${game.getChallenger()}> is challanging you to a hangman game!\n${game.getMaskedPhrase()}` };
+        var responseBuilder = new SlackResponseBuilder();
+
+        responseBuilder.setText(`<@${game.getChallenger()}> is challanging you to a hangman game!\n${game.getMaskedPhrase()}`);
+        responseBuilder.setResponseType("in_channel");
+
+        return responseBuilder.build();
     }
 
     _getInvalidTurnResponse(game) {
-        throw new Error('Method not implemented.');
+        var responseBuilder = new SlackResponseBuilder();
+
+        responseBuilder.setText(`Invalid input.`);
+        return responseBuilder.build();
     }
 
     _getValidTurnResponse(game) {
-        if (game.isGuessed())
-            return {
-                text: `Congratulations! Thats it!\n${game.getPhrase().get()}`
-            }
+        if (game.isGuessed()) {
+            return this.__getGameIsGuessedResponse(game);
+        }
 
-        if (game.isLost())
-            return {
-                text: `The end. You've not managed to guess correctly! <@${game.getChallenger()}> has beaten you with:\n${game.getPhrase().get()}\nMisses: ${game.getMisses().join(", ")}`,
-                attachments: [{
-                    text: "",
-                    image_url: `https://slack-hangman-zaimatsu.c9users.io/hangman_misses${game.getMaxMissCount()}.png`
-                }]
-            };
+        if (game.isLost()) {
+            return this.__getGameIsLostResponse(game);
+        }
 
-        return {
-            text: game.getMaskedPhrase(),
-            attachments: [{
-                text: `${game.getMissCount()} / ${game.getMaxMissCount()}\nMisses: ${game.getMisses().join(", ")}`,
-                thumb_url: `https://slack-hangman-zaimatsu.c9users.io/hangman_misses${game.getMissCount()}.png`
-            }]
-        };
+        return this.__getStandardResponse(game);
+    }
+
+    __getGameIsGuessedResponse(game) {
+        var responseBuilder = new SlackResponseBuilder();
+
+        responseBuilder.setText(`Congratulations! Thats it!\n${game.getPhrase().get()}`);
+        responseBuilder.setResponseType("in_channel");
+
+        return responseBuilder.build();
+    }
+
+    __getGameIsLostResponse(game) {
+        var responseBuilder = new SlackResponseBuilder();
+
+        let responseText = "";
+        responseText += `The end. You've not managed to guess correctly! `;
+        responseText += `<@${game.getChallenger()}> has beaten you with:\n${game.getPhrase().get()}\n`;
+        responseText += `Misses: ${game.getMisses().join(", ")}`;
+
+        responseBuilder.setText(responseText);
+        responseBuilder.addImageAttachment(`https://zaimatsu.tk/hangman_misses${game.getMaxMissCount()}.png`);
+        
+        return responseBuilder.build();
+    }
+
+    __getStandardResponse(game) {
+        var responseBuilder = new SlackResponseBuilder();
+
+        responseBuilder.setText(game.getMaskedPhrase());
+
+        var attachmentText = `${game.getMissCount()} / ${game.getMaxMissCount()}\nMisses: ${game.getMisses().join(", ")}`;
+        var thumbUrl = `https://zaimatsu.tk/hangman_misses${game.getMissCount()}.png`;
+        responseBuilder.addThumbAttachment(thumbUrl, attachmentText);
+
+        return responseBuilder.build();
     }
 }
 

@@ -1,3 +1,4 @@
+var http = require("http");
 var https = require("https");
 var path = require("path");
 
@@ -9,24 +10,29 @@ var _ = require("lodash");
 const url = require("url");
 const fs = require("fs");
 
-var GameManager = require("./GameManager.js");
-var DefaultGameResponseProvider = require("./DefaultGameResponseProvider.js");
-var PhraseValidator = require("./PhraseValidator.js");
+var GameManager = require("./GameManager");
+var DefaultGameResponseProvider = require("./DefaultGameResponseProvider");
+var PhraseValidator = require("./PhraseValidator");
+var SlackResponseSender = require("./SlackResponseSender");
 
 var router = express();
+var httpRouter = express();
 
 const options = {
-
-    key: fs.readFileSync("/home/pi/slack-hangman/pem/key.pem"),
-    cert: fs.readFileSync("/home/pi/slack-hangman/pem/cert.pem"),
-    passphrase: process.env.HANGMAN_PEM_PASSPHRASE
+    key: fs.readFileSync('/etc/letsencrypt/live/zaimatsu.tk/privkey.pem'),
+    cert: fs.readFileSync('/etc/letsencrypt/live/zaimatsu.tk/cert.pem'),
+    ca: fs.readFileSync('/etc/letsencrypt/live/zaimatsu.tk/chain.pem')
 };
 
 var server = https.createServer(options, router);
 
+var httpServer = http.createServer(httpRouter);
+
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: true }));
 router.use(express.static("public"));
+
+httpRouter.use(express.static("public"));
 
 if (_.isEmpty(process.env.VERIFICATION_TOKEN)) {
     // TODO add verification with other env vars
@@ -36,10 +42,22 @@ if (_.isEmpty(process.env.VERIFICATION_TOKEN)) {
 
 var defaultGameResponseProvider = new DefaultGameResponseProvider();
 var phraseValidator = new PhraseValidator();
+var slackResponseSender = new SlackResponseSender();
 
 var gameManager = new GameManager(defaultGameResponseProvider, phraseValidator);
 
+httpRouter.get("/", function (req, res) {
+    console.log("[HTTP SERVER] GET '/'", req.ip, JSON.stringify(req.query));
+    res.redirect("https://github.com/Zaimatsu/slack-hangman");
+});
+
+router.get("/", function (req, res) {
+    console.log("[HTTPS SERVER] GET '/'", req.ip, JSON.stringify(req.body));
+    res.redirect("https://github.com/Zaimatsu/slack-hangman");
+});
+
 router.post("/", function (req, res) {
+    console.log("[HTTPS SERVER] POST '/'", req.ip, JSON.stringify(req.body));
     var token = req.body.token;
 
     if (!_.isEqual(token, process.env.VERIFICATION_TOKEN)) {
@@ -52,23 +70,9 @@ router.post("/", function (req, res) {
     var userInput = req.body.text.toUpperCase();
     var user = req.body.user_name;
 
-    //console.log(`[SERVER] Got message from ${ user } at channel ${ channelId } with phrase ${ userInput }`);
+    var slackResponse = gameManager.play(channelId, user, userInput);
 
-    var response = gameManager.play(channelId, user, userInput);
-
-    // channel response
-    request.post(
-        req.body.response_url, {
-            json: {
-                text: response.text,
-                response_type: "in_channel",
-                attachments: response.attachments
-            }
-        }
-    );
-
-    // individual response
-    res.send();
+    slackResponseSender.send(slackResponse, req, res);
 });
 
 router.get("/oauth", function (req, res) {
@@ -122,7 +126,12 @@ io.on("connection", (socket) => {
     });
 });
 
-server.listen(process.env.PORT || 6443, process.env.IP || "0.0.0.0", function () {
+server.listen(process.env.PORT || 443, process.env.IP || "0.0.0.0", function () {
     var addr = server.address();
-    console.log("[SERVER] Listening at", addr.address + ":" + addr.port);
+    console.log("[HTTPS SERVER] Listening at", addr.address + ":" + addr.port);
+});
+
+httpServer.listen(process.env.PORT || 80, process.env.IP || "0.0.0.0", function () {
+    var addr = httpServer.address();
+    console.log("[HTTP SERVER] Listening at", addr.address + ":" + addr.port);
 });

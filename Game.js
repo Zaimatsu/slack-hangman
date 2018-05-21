@@ -12,6 +12,12 @@ class Game {
         this.__challenger = user;
         this.__phraseValidator = phraseValidator;
         this.__maxMissCount = 8;
+        this.__isInvalid = false;
+
+        if (!this.__validateUserInput(phrase)) {
+            this.__isInvalid = true;
+            this.__isLastTurnInvalid = true;
+        }
     }
 
     play(user, userInput) {
@@ -44,6 +50,10 @@ class Game {
 
     isLost() {
         return this.__maskedPhrase.getMissCount() >= this.__maxMissCount;
+    }
+
+    isInvalid() {
+        return this.__isInvalid;
     }
 
     getMaskedPhrase() {

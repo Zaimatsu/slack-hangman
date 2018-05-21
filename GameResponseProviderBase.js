@@ -1,9 +1,9 @@
 class GameResponseProviderBase {
     get(game) {
-        if (game.isJustStarted()) {
+        if (game.isJustStarted() && !game.isInvalid()) {
             return this._getJustStartedResponse(game);
         }
-        else if (game.isLastTurnInvalid()) {
+        else if (game.isLastTurnInvalid() || game.isInvalid()) {
             return this._getInvalidTurnResponse(game);
         }
 
