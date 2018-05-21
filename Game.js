@@ -37,31 +37,31 @@ class Game {
     getChallenger() {
         return this.__challenger;
     }
-    
+
     isGuessed() {
         return this.__maskedPhrase.isGuessed();
     }
-    
+
     isLost() {
         return this.__maskedPhrase.getMissCount() >= this.__maxMissCount;
     }
-    
+
     getMaskedPhrase() {
         return this.__maskedPhrase.get();
     }
-    
+
     getMissCount() {
         return this.__maskedPhrase.getMissCount();
     }
-    
+
     getPhrase() {
         return this.__phrase;
     }
-    
+
     getMisses() {
         return this.__maskedPhrase.getMisses();
     }
-    
+
     getMaxMissCount() {
         return this.__maxMissCount;
     }

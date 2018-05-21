@@ -8,7 +8,7 @@ class Phrase {
     get() {
         return this.__phrase;
     }
-    
+
     isEqual(value) {
         return _.isEqual(this.__phrase, value);
     }

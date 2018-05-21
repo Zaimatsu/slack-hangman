@@ -11,12 +11,12 @@ socketClient.on("connect", () => {
 
     setTimeout(() => {
         console.error("[SERVER.STOP] Fail. Server not stopped.");
-	process.exit(1);	
+        process.exit(1);
     }, 3000);
 
     socketClient.on("disconnect", (reason) => {
         console.log("[SERVER.STOP] Success. Server stopped.");
-	process.exit(0);
+        process.exit(0);
     });
 });
 

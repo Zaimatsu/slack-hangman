@@ -1,3 +1,4 @@
 node_modules/
 pem/
-setenv.sh
+private/
+.vscode
