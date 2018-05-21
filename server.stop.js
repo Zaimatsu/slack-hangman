@@ -1,5 +1,5 @@
 const io = require("socket.io-client");
-const socketClient = io.connect("https://localhost:6443", {
+const socketClient = io.connect("https://localhost:443", {
     query: { token: process.env.SOCKET_TOKEN },
     secure: true,
     rejectUnauthorized: false
