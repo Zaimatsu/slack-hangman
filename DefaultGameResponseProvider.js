@@ -51,6 +51,7 @@ class DefaultGameResponseProvider extends GameResponseProviderBase {
 
         responseBuilder.setText(responseText);
         responseBuilder.addImageAttachment(`https://zaimatsu.tk/hangman_misses${game.getMaxMissCount()}.png`);
+        responseBuilder.setResponseType("in_channel");
         
         return responseBuilder.build();
     }
@@ -63,6 +64,7 @@ class DefaultGameResponseProvider extends GameResponseProviderBase {
         var attachmentText = `${game.getMissCount()} / ${game.getMaxMissCount()}\nMisses: ${game.getMisses().join(", ")}`;
         var thumbUrl = `https://zaimatsu.tk/hangman_misses${game.getMissCount()}.png`;
         responseBuilder.addThumbAttachment(thumbUrl, attachmentText);
+        responseBuilder.setResponseType("in_channel");
 
         return responseBuilder.build();
     }
