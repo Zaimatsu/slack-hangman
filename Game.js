@@ -4,7 +4,7 @@ var MaskedPhrase = require("./MaskedPhrase.js");
 var _ = require("lodash");
 
 class Game {
-    constructor(user, phrase, phraseValidator) {
+    constructor(id, user, phrase, phraseValidator) {
         this.__phrase = phrase;
         this.__maskedPhrase = new MaskedPhrase(this.__phrase);
         this.__turns = 0;
@@ -13,6 +13,7 @@ class Game {
         this.__phraseValidator = phraseValidator;
         this.__maxMissCount = 8;
         this.__isInvalid = false;
+        this.__id = id;
 
         if (!this.__validateUserInput(phrase)) {
             this.__isInvalid = true;
@@ -74,6 +75,10 @@ class Game {
 
     getMaxMissCount() {
         return this.__maxMissCount;
+    }
+
+    getId() {
+        return this.__id;
     }
 
     __validateUserInput(userInput) {

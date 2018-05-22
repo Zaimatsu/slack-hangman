@@ -52,24 +52,28 @@ if (_.isEmpty(process.env.SOCKET_TOKEN)) {
 
 var url = "mongodb://localhost:27017";
 const dbName = "slack-hangman";
- 
-MongoClient.connect(url, function(err, client) {
-    if(err !== null) {
-        console.error("[SERVER] Couldn't connect to database.");
-        process.exit(1);
-    }
 
-    console.log("[SERVER] Connected successfully to database.");
 
-    const db = client.db(dbName);
+connectToDatabase = function(resolve, reject) {
+    MongoClient.connect(url, function(err, client) {
+        if(err !== null) {
+            reject(err);
+        }
+    
+        console.log("[SERVER] Connected successfully to database.");
+    
+        resolve(client.db(dbName));
+    
+        client.close();
+    });
+}
 
-    client.close();
-});
+dbClientPromise = new Promise(connectToDatabase);
 
 var defaultGameResponseProvider = new DefaultGameResponseProvider();
 var phraseValidator = new PhraseValidator();
 var slackResponseSender = new SlackResponseSender();
-var gameManager = new GameManager(defaultGameResponseProvider, phraseValidator);
+var gameManager = new GameManager(defaultGameResponseProvider, phraseValidator, dbClientPromise);
 
 httpApp.get("/", function (req, res) {
     console.log("[HTTP SERVER] GET '/'", req.ip, JSON.stringify(req.query));
