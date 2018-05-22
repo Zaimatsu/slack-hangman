@@ -4,6 +4,7 @@ var express = require("express");
 var fs = require("fs");
 var http = require("http");
 var https = require("https");
+var MongoClient = require('mongodb').MongoClient;
 var path = require("path");
 var request = require("request");
 var url = require("url");
@@ -48,6 +49,22 @@ if (_.isEmpty(process.env.SOCKET_TOKEN)) {
     console.error("[SERVER] The server could not start. Set SOCKET_TOKEN enviromental variable first.");
     process.exit(1);
 }
+
+var url = "mongodb://localhost:27017";
+const dbName = "slack-hangman";
+ 
+MongoClient.connect(url, function(err, client) {
+    if(err !== null) {
+        console.error("[SERVER] Couldn't connect to database.");
+        process.exit(1);
+    }
+
+    console.log("[SERVER] Connected successfully to database.");
+
+    const db = client.db(dbName);
+
+    client.close();
+});
 
 var defaultGameResponseProvider = new DefaultGameResponseProvider();
 var phraseValidator = new PhraseValidator();
