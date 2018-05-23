@@ -1,3 +1,5 @@
+require('app-module-path').addPath(__dirname);
+
 var _ = require("lodash");
 var bodyParser = require("body-parser");
 var express = require("express");
@@ -9,10 +11,13 @@ var path = require("path");
 var request = require("request");
 var url = require("url");
 
-var DefaultGameResponseProvider = require("./DefaultGameResponseProvider");
-var GameManager = require("./GameManager");
-var PhraseValidator = require("./PhraseValidator");
-var SlackResponseSender = require("./SlackResponseSender");
+var configVerification = require("ConfigVerification");
+var DefaultGameResponseProvider = require("DefaultGameResponseProvider");
+var GameManager = require("GameManager");
+var PhraseValidator = require("PhraseValidator");
+var SlackResponseSender = require("SlackResponseSender");
+
+configVerification.isValid();
 
 var app = express();
 var httpApp = express();
@@ -29,26 +34,6 @@ var httpServer = http.createServer(httpApp);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
-
-if (_.isEmpty(process.env.VERIFICATION_TOKEN)) {
-    console.error("[SERVER] The server could not start. Set VERIFICATION_TOKEN enviromental variable first.");
-    process.exit(1);
-}
-
-if (_.isEmpty(process.env.CLIENT_ID)) {
-    console.error("[SERVER] The server could not start. Set CLIENT_ID enviromental variable first.");
-    process.exit(1);
-}
-
-if (_.isEmpty(process.env.CLIENT_SECRET)) {
-    console.error("[SERVER] The server could not start. Set CLIENT_SECRET enviromental variable first.");
-    process.exit(1);
-}
-
-if (_.isEmpty(process.env.SOCKET_TOKEN)) {
-    console.error("[SERVER] The server could not start. Set SOCKET_TOKEN enviromental variable first.");
-    process.exit(1);
-}
 
 var url = "mongodb://localhost:27017";
 const dbName = "slack-hangman";

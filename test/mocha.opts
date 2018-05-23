@@ -1,0 +1,5 @@
+# mocha.opts
+
+  --recursive
+  --require ./test/init
+  
