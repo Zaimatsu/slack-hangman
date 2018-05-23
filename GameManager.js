@@ -14,15 +14,21 @@ class GameManager {
     }
 
     play(channelId, user, userInput) {
+        var promise = null;
+
         if (_.has(this.__games, channelId)) {
-            this.__handleExistingGame(channelId, user, userInput);
+            promise = this.__handleExistingGame(channelId, user, userInput);
         } else {
-            this.__games[channelId] = this.__createNewGame(user, userInput, channelId);
+            promise = this.__games[channelId] = this.__createNewGame(user, userInput, channelId);
         }
 
-        this.__updateGameInDatabase(this.__games[channelId], channelId, user, userInput);
-
-        return this.__gameResponseProvider.get(this.__games[channelId]);
+        return promise
+        .then( () => {
+            return this.__updateGameInDatabase(this.__games[channelId], channelId, user, userInput);
+        })
+        .then( () => {
+            return this.__gameResponseProvider.get(this.__games[channelId]);
+        });
     }
 
     __createNewGame(user, userInput, channelId) {
@@ -33,8 +39,9 @@ class GameManager {
     }
 
     __addNewGameToDatabase(user, userInput, channelId) {
-        return this.__dbClientPromise.then((dbClient) => {
-            dbClient.collection("games").insertOne(
+        return this.__dbClientPromise
+        .then( (dbClient) => {
+            return dbClient.collection("games").insertOne(
                 {
                     phrase: userInput,
                     channelId: channelId,
@@ -48,7 +55,7 @@ class GameManager {
     }
 
     __updateGameInDatabase(gamePromise, channelId, user, userInput) {
-        Promise.all([this.__dbClientPromise, gamePromise])
+        return Promise.all([this.__dbClientPromise, gamePromise])
         .then(([dbClient, game]) => {
             dbClient.collection("games").findOneAndUpdate({ _id: game.getId() }, {
                 $set: {
@@ -67,12 +74,12 @@ class GameManager {
     }
 
     __handleExistingGame(channelId, user, userInput) {
-        this.__games[channelId]
+        return this.__games[channelId]
         .then((game) => {
             if (game.isLost() || game.isGuessed() || game.isInvalid()) {
                 this.__games[channelId] = this.__createNewGame(user, userInput, channelId);
             } else {
-                this.__games[channelId].play(user, userInput);
+                game.play(user, userInput);
             }
         });
     }

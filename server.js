@@ -52,7 +52,7 @@ if (_.isEmpty(process.env.SOCKET_TOKEN)) {
 
 var url = "mongodb://localhost:27017";
 const dbName = "slack-hangman";
-
+var dbClient = null;
 
 connectToDatabase = function(resolve, reject) {
     MongoClient.connect(url, function(err, client) {
@@ -60,11 +60,12 @@ connectToDatabase = function(resolve, reject) {
             reject(err);
         }
     
-        console.log("[SERVER] Connected successfully to database.");
+        console.log("[SERVER] Connected successfully to database. Resolving with " + dbName);
     
+        dbClient = client;
         resolve(client.db(dbName));
-    
-        client.close();
+
+        console.log("SOMETHING AFTER RESOLVE...");
     });
 }
 
@@ -99,9 +100,10 @@ app.post("/", function (req, res) {
     var userInput = req.body.text.toUpperCase();
     var user = req.body.user_name;
 
-    var slackResponse = gameManager.play(channelId, user, userInput);
-
-    slackResponseSender.send(slackResponse, req, res);
+    gameManager.play(channelId, user, userInput)
+    .then( (slackResponse) => {
+        slackResponseSender.send(slackResponse, req, res);
+    });
 });
 
 app.get("/oauth", function (req, res) {
@@ -151,6 +153,7 @@ io.use((socket, next) => {
 io.on("connection", (socket) => {
     socket.on("stop", () => {
         console.log("[SERVER] Stopping server by socket...");
+        dbClient.close();
         process.exit(0);
     });
 });
