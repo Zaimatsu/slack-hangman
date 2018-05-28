@@ -1,7 +1,7 @@
 var expect = require("chai").expect;
 var _ = require("lodash");
 
-var ConfigVerification = require("ConfigVerification");
+var EnvironmentalConfigVerification = require("EnvironmentalConfigVerification");
 
 var defaultEnviromentalVariablesConfig = {
     VERIFICATION_TOKEN: "verificationToken",
@@ -16,7 +16,7 @@ var initEnviromentalVariables = function (enviromentalVariablesConfig) {
     });
 }
 
-describe('ConfigVerification', function () {
+describe('EnvironmentalConfigVerification', function () {
     beforeEach(function () {
         initEnviromentalVariables(defaultEnviromentalVariablesConfig);
     });
@@ -26,12 +26,12 @@ describe('ConfigVerification', function () {
             it(`should throw if ${key} enviromental variable is not set`, function () {
                 initEnviromentalVariables(_.set(_.clone(defaultEnviromentalVariablesConfig), key, ""));
 
-                expect(ConfigVerification.isValid).to.throw();
+                expect(EnvironmentalConfigVerification.isValid).to.throw();
             });
         });
 
         it("should return true if all enviromental variables are set", function() {
-            expect(ConfigVerification.isValid()).to.equal(true);
+            expect(EnvironmentalConfigVerification.isValid()).to.equal(true);
         })
     });
 });

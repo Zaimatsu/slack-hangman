@@ -2,4 +2,3 @@
 
   --recursive
   --require ./test/init
-  

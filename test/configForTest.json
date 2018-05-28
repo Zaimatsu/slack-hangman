@@ -1,0 +1,6 @@
+{
+    "testSection": {
+        "testVar": "test1",
+        "testBool": true
+    }
+}
