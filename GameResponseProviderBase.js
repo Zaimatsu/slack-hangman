@@ -1,4 +1,8 @@
 class GameResponseProviderBase {
+    constructor() {
+        this.get = this.get.bind(this);
+    }
+
     get(game) {
         if (game.isJustStarted() && !game.isInvalid()) {
             return this._getJustStartedResponse(game);
