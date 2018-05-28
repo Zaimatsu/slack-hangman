@@ -1,15 +1,13 @@
 class GameResponseProviderBase {
-    get(gamePromise) {
-        return gamePromise.then( (game) => {
-            if (game.isJustStarted() && !game.isInvalid()) {
-                return this._getJustStartedResponse(game);
-            }
-            else if (game.isLastTurnInvalid() || game.isInvalid()) {
-                return this._getInvalidTurnResponse(game);
-            }
+    get(game) {
+        if (game.isJustStarted() && !game.isInvalid()) {
+            return this._getJustStartedResponse(game);
+        }
+        else if (game.isLastTurnInvalid() || game.isInvalid()) {
+            return this._getInvalidTurnResponse(game);
+        }
 
-            return this._getValidTurnResponse(game);
-        });
+        return this._getValidTurnResponse(game);
     }
 
     _getJustStartedResponse(game) {
