@@ -6,4 +6,4 @@ class MaskedPhraseCreator {
     }
 };
 
-module.exports = GameCreator;
+module.exports = MaskedPhraseCreator;
