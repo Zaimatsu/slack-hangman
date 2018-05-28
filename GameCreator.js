@@ -1,3 +1,4 @@
+var Game = require("./Game");
 var Phrase = require("./Phrase");
 
 class GameCreator {
