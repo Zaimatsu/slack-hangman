@@ -8,4 +8,4 @@ class DatabaseClientProvider {
     }
 };
 
-module.exports = GameCreator;
+module.exports = DatabaseClientProvider;
