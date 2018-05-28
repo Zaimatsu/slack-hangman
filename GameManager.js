@@ -1,47 +1,52 @@
-var Phrase = require("./Phrase.js");
-var Game = require("./Game.js");
+var Game = require("./Game");
 
 var _ = require("lodash");
 
 class GameManager {
-    constructor(gameResponseProvider, phraseValidator, dbClientPromise) {
+    constructor(gameResponseProvider, databaseClientProvider, gameCreator) {
         this.__games = {};
         this.__gameResponseProvider = gameResponseProvider;
-        this.__phraseValidator = phraseValidator;
-        this.__dbClientPromise = dbClientPromise;
+
+        this.__databaseClientProvider = databaseClientProvider;
+        this.__gameCreator = gameCreator;
 
         this.play = this.play.bind(this);
+
+        // TODO load ongoing games from database and initialize games collection
     }
 
     play(channelId, user, userInput) {
-        var promise = null;
+        return this.__prepareGame(channelId, user, userInput)
+        .then((game) => {
+            this.__updateGameInDatabase(game, channelId, user, userInput);
 
-        if (_.has(this.__games, channelId)) {
-            promise = this.__handleExistingGame(channelId, user, userInput);
-        } else {
-            promise = this.__games[channelId] = this.__createNewGame(user, userInput, channelId);
-        }
-
-        return promise
-        .then( () => {
-            return this.__updateGameInDatabase(this.__games[channelId], channelId, user, userInput);
+            return game;
         })
-        .then( () => {
-            return this.__gameResponseProvider.get(this.__games[channelId]);
+        .then(this.__gameResponseProvider.get);
+    }
+
+    __prepareGame(channelId, user, userInput) {
+        if (_.has(this.__games, channelId)) {
+            return this.__handleExistingGame(channelId, user, userInput);
+        } else {
+            return this.__createNewGame(channelId, user, userInput);
+        }
+    }
+
+    __createNewGame(channelId, user, userInput) {
+        return this.__registerGameInDatabase(user, userInput, channelId)
+        .then( (result) => {
+            var newGame = this.__gameCreator.create(result.insertedId, user, userInput);
+            this.__games[channelId] = newGame;
+
+            return newGame;
         });
     }
 
-    __createNewGame(user, userInput, channelId) {
-        return this.__addNewGameToDatabase(user, userInput, channelId)
-        .then((result) => {
-            return new Game(result.insertedId, user, new Phrase(userInput), this.__phraseValidator);
-        });
-    }
-
-    __addNewGameToDatabase(user, userInput, channelId) {
-        return this.__dbClientPromise
-        .then( (dbClient) => {
-            return dbClient.collection("games").insertOne(
+    __registerGameInDatabase(user, userInput, channelId) {
+        return this.__databaseClientProvider.get()
+        .then( (databaseClient) => {
+            return databaseClient.collection("games").insertOne(
                 {
                     phrase: userInput,
                     channelId: channelId,
@@ -54,8 +59,8 @@ class GameManager {
         });
     }
 
-    __updateGameInDatabase(gamePromise, channelId, user, userInput) {
-        return Promise.all([this.__dbClientPromise, gamePromise])
+    __updateGameInDatabase(game, channelId, user, userInput) {
+        return Promise.all([this.__databaseClientProvider.get(), game])
         .then(([dbClient, game]) => {
             dbClient.collection("games").findOneAndUpdate({ _id: game.getId() }, {
                 $set: {
@@ -74,14 +79,15 @@ class GameManager {
     }
 
     __handleExistingGame(channelId, user, userInput) {
-        return this.__games[channelId]
-        .then((game) => {
-            if (game.isLost() || game.isGuessed() || game.isInvalid()) {
-                this.__games[channelId] = this.__createNewGame(user, userInput, channelId);
-            } else {
-                game.play(user, userInput);
-            }
-        });
+        var game = this.__games[channelId];
+        
+        if (game.isLost() || game.isGuessed() || game.isInvalid()) {
+            return this.__createNewGame(user, userInput, channelId);
+        } else {
+            game.play(user, userInput);
+
+            return Promise.resolve(game);
+        }
     }
 };
 

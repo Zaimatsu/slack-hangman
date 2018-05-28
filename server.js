@@ -11,13 +11,21 @@ var path = require("path");
 var request = require("request");
 var url = require("url");
 
-var configVerification = require("ConfigVerification");
+var environmentalConfigVerification = require("EnvironmentalConfigVerification");
+var ConfigProvider = require("ConfigProvider");
+var DatabaseConnectionManager = require("DatabaseConnectionManager");
 var DefaultGameResponseProvider = require("DefaultGameResponseProvider");
 var GameManager = require("GameManager");
 var PhraseValidator = require("PhraseValidator");
 var SlackResponseSender = require("SlackResponseSender");
+var DatabaseClientProvider = require("DatabaseClientProvider");
+var GameCreator = require("GameCreator");
+var MaskedPhraseCreator = require("MaskedPhraseCreator");
 
-configVerification.isValid();
+environmentalConfigVerification.isValid();
+
+var configProvider = new ConfigProvider();
+var databaseConnectionManager = new DatabaseConnectionManager(MongoClient, configProvider.get("mongoDb"));
 
 var app = express();
 var httpApp = express();
@@ -35,31 +43,13 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
-var url = "mongodb://localhost:27017";
-const dbName = "slack-hangman";
-var dbClient = null;
-
-connectToDatabase = function(resolve, reject) {
-    MongoClient.connect(url, function(err, client) {
-        if(err !== null) {
-            reject(err);
-        }
-    
-        console.log("[SERVER] Connected successfully to database. Resolving with " + dbName);
-    
-        dbClient = client;
-        resolve(client.db(dbName));
-
-        console.log("SOMETHING AFTER RESOLVE...");
-    });
-}
-
-dbClientPromise = new Promise(connectToDatabase);
-
 var defaultGameResponseProvider = new DefaultGameResponseProvider();
 var phraseValidator = new PhraseValidator();
 var slackResponseSender = new SlackResponseSender();
-var gameManager = new GameManager(defaultGameResponseProvider, phraseValidator, dbClientPromise);
+var maskedPhraseCreator = new MaskedPhraseCreator();
+var gameCreator = new GameCreator(phraseValidator, maskedPhraseCreator);
+var databaseClientProvider = new DatabaseClientProvider(databaseConnectionManager);
+var gameManager = new GameManager(defaultGameResponseProvider, databaseClientProvider, gameCreator);
 
 httpApp.get("/", function (req, res) {
     console.log("[HTTP SERVER] GET '/'", req.ip, JSON.stringify(req.query));
@@ -138,8 +128,10 @@ io.use((socket, next) => {
 io.on("connection", (socket) => {
     socket.on("stop", () => {
         console.log("[SERVER] Stopping server by socket...");
-        dbClient.close();
-        process.exit(0);
+        databaseConnectionManager.close()
+        .then( () => {
+            process.exit(0);
+        });
     });
 });
 
