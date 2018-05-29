@@ -3,8 +3,9 @@ var Game = require("./Game");
 var _ = require("lodash");
 
 class GameManager {
-    constructor(gameResponseProvider, databaseClientProvider, gameCreator) {
+    constructor(gameResponseProvider, databaseClientProvider, gameCreator, gameStatesRetriever) {
         this.__games = {};
+        
         this.__gameResponseProvider = gameResponseProvider;
 
         this.__databaseClientProvider = databaseClientProvider;
@@ -12,7 +13,10 @@ class GameManager {
 
         this.play = this.play.bind(this);
 
-        // TODO load ongoing games from database and initialize games collection
+        gameStatesRetriever.get()
+        .then( (games) => {
+            this.__games = games;
+        });
     }
 
     play(channelId, user, userInput) {

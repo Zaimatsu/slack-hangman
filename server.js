@@ -21,6 +21,7 @@ var SlackResponseSender = require("SlackResponseSender");
 var DatabaseClientProvider = require("DatabaseClientProvider");
 var GameCreator = require("GameCreator");
 var MaskedPhraseCreator = require("MaskedPhraseCreator");
+var GameStatesRetriever = require("GameStatesRetriever");
 
 environmentalConfigVerification.isValid();
 
@@ -49,7 +50,8 @@ var slackResponseSender = new SlackResponseSender();
 var maskedPhraseCreator = new MaskedPhraseCreator();
 var gameCreator = new GameCreator(phraseValidator, maskedPhraseCreator);
 var databaseClientProvider = new DatabaseClientProvider(databaseConnectionManager);
-var gameManager = new GameManager(defaultGameResponseProvider, databaseClientProvider, gameCreator);
+var gameStatesRetriever = new GameStatesRetriever(databaseClientProvider);
+var gameManager = new GameManager(defaultGameResponseProvider, databaseClientProvider, gameCreator, gameStatesRetriever);
 
 httpApp.get("/", function (req, res) {
     console.log("[HTTP SERVER] GET '/'", req.ip, JSON.stringify(req.query));

@@ -4,10 +4,10 @@ var sinon = require("sinon");
 
 var GameManager = require("GameManager");
 
-var sandbox, gameResponseProvider = {}, databaseClientProvider = {}, gameCreator = {}, game1 = {};
+var sandbox, gameResponseProvider = {}, databaseClientProvider = {}, gameCreator = {}, game1 = {}, gameStatesRetriever = {};
 
 var createSut = function() {
-    return new GameManager(gameResponseProvider, databaseClientProvider, gameCreator);
+    return new GameManager(gameResponseProvider, databaseClientProvider, gameCreator, gameStatesRetriever);
 }
 
 beforeEach(function() {
@@ -37,6 +37,8 @@ beforeEach(function() {
     }
 
     gameCreator.create = sandbox.stub().returns(game1);
+
+    gameStatesRetriever.get = sandbox.stub().returns(Promise.resolve({}));
 });
 
 afterEach(function() {
