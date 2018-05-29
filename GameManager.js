@@ -82,7 +82,7 @@ class GameManager {
         var game = this.__games[channelId];
         
         if (game.isLost() || game.isGuessed() || game.isInvalid()) {
-            return this.__createNewGame(user, userInput, channelId);
+            return this.__createNewGame(channelId, user, userInput);
         } else {
             game.play(user, userInput);
 
