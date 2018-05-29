@@ -50,7 +50,7 @@ var slackResponseSender = new SlackResponseSender();
 var maskedPhraseCreator = new MaskedPhraseCreator();
 var gameCreator = new GameCreator(phraseValidator, maskedPhraseCreator);
 var databaseClientProvider = new DatabaseClientProvider(databaseConnectionManager);
-var gameStatesRetriever = new GameStatesRetriever(databaseClientProvider);
+var gameStatesRetriever = new GameStatesRetriever(databaseClientProvider, gameCreator);
 var gameManager = new GameManager(defaultGameResponseProvider, databaseClientProvider, gameCreator, gameStatesRetriever);
 
 httpApp.get("/", function (req, res) {

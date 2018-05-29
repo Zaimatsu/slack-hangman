@@ -3,8 +3,9 @@ var _ = require("lodash");
 var Game = require("Game");
 
 class GameStatesRetriever {
-    constructor(databaseClientProvider) {
+    constructor(databaseClientProvider, gameCreator) {
         this.__databaseClientProvider = databaseClientProvider;
+        this.__gameCreator = gameCreator;
     }
 
     get() {
