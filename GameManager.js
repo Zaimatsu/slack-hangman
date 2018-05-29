@@ -64,6 +64,8 @@ class GameManager {
     }
 
     __updateGameInDatabase(game, channelId, user, userInput) {
+        if(game.isJustStarted()) return;
+
         return Promise.all([this.__databaseClientProvider.get(), game])
         .then(([dbClient, game]) => {
             dbClient.collection("games").findOneAndUpdate({ _id: game.getId() }, {
