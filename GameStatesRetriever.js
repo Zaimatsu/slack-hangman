@@ -17,7 +17,7 @@ class GameStatesRetriever {
             var games = {};
 
             ongoingGames.forEach( (ongoingGame) => {
-                var game = this.__gameCreator.create(ongoingGame.__id, ongoingGame.user, ongoingGame.phrase);
+                var game = this.__gameCreator.create(ongoingGame._id, ongoingGame.challenger, ongoingGame.phrase);
                 _.forEach(ongoingGame.turns, (turn) => {
                     if(!turn.isInvalid) {
                         game.play(turn.user, turn.input);
