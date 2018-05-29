@@ -10,7 +10,7 @@ class GameStatesRetriever {
     get() {
         return this.__databaseClientProvider.get()
         .then( (databaseClient) => {
-            return databaseClient.find({ ongoing: true }).toArray();
+            return databaseClient.collection("games").find({ ongoing: true }).toArray();
         })
         .then ( (ongoingGames) => {
             var games = {};
