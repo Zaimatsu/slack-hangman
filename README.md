@@ -7,25 +7,32 @@ Game integrated with [slack](https://slack.com) as [slash commands](https://api.
 
 ### Installation
 
-`npm install`
+1. `npm install`
 
-VERIFICATION_TOKEN enviromental variable must be set.
-https://api.slack.com/docs/token-types#verification
-NOTE: app uses verification tokens that are deprecated.
+2. VERIFICATION_TOKEN enviromental variable must be set.
 
-CLIENT_ID enviromental variable must be set.
+See: https://api.slack.com/docs/token-types#verification
+
+> NOTE: app uses verification tokens that are deprecated.
+
+
+3. CLIENT_ID enviromental variable must be set.
+
 CLIENT_SECRET enviromental variable must be set.
-https://api.slack.com/methods/oauth.access
 
-SOCKET_TOKEN enviromental variable must be set.
+
+See: https://api.slack.com/methods/oauth.access
+
+4. SOCKET_TOKEN enviromental variable must be set.
+
 Used in server.stop.js
 
-SSL must be setup. Currently it's hardcoded in `server.js` to look for:
+5. SSL must be setup. Currently it's hardcoded in `server.js` to look for:
     - key: '/etc/letsencrypt/live/zaimatsu.tk/privkey.pem'
     - cert: '/etc/letsencrypt/live/zaimatsu.tk/cert.pem'
     - ca: '/etc/letsencrypt/live/zaimatsu.tk/chain.pem'
 
-MongoDb must be configured. Configure db endpoints in `hangmanConfig.json`.
+6. MongoDb must be configured. Configure db endpoints in `hangmanConfig.json`.
 
 ### To start a game
 
