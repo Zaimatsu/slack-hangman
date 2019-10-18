@@ -33,6 +33,7 @@ beforeEach(function() {
         isLost: sandbox.stub().returns(false),
         isInvalid: sandbox.stub().returns(false),
         isLastTurnInvalid: sandbox.stub().returns(false),
+        isJustStarted: sandbox.stub().returns(true),
         play: sandbox.stub()
     }
 
