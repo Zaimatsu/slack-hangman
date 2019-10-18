@@ -5,6 +5,7 @@
   "main": "server.js",
   "repository": "https://github.com/Zaimatsu/slack-hangman",
   "author": "Sebastian Pietraszek <sebastian.a.pietraszek@gmail.com>",
+  "license": "UNLICENSED",
   "scripts": {
     "prestart": "npm install && npm test",
     "start": "node server.js",
@@ -17,7 +18,7 @@
     "app-module-path": "^2.2.0",
     "body-parser": "^1.18.3",
     "express": "^4.16.3",
-    "lodash": "^4.17.10",
+    "lodash": "^4.17.15",
     "mongodb": "^3.1.0-beta4",
     "request": "^2.87.0"
   },
@@ -26,7 +27,7 @@
     "chai-as-promised": "^7.1.1",
     "githubhook": "^1.9.3",
     "mocha": "^5.2.0",
-    "nyc": "^11.8.0",
+    "nyc": "^14.1.1",
     "sinon": "^5.0.7",
     "sinon-chai": "^3.1.0",
     "socket.io": "^2.1.1"
