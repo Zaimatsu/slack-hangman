@@ -17,7 +17,7 @@
   "dependencies": {
     "app-module-path": "^2.2.0",
     "body-parser": "^1.18.3",
-    "express": "^4.16.3",
+    "express": "^4.17.3",
     "lodash": "^4.17.15",
     "mongodb": "^3.1.0-beta4",
     "request": "^2.87.0"
