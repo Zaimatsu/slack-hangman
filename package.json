@@ -26,7 +26,7 @@
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
     "githubhook": "^1.9.3",
-    "mocha": "^5.2.0",
+    "mocha": "^10.2.0",
     "nyc": "^14.1.1",
     "sinon": "^5.0.7",
     "sinon-chai": "^3.1.0",
